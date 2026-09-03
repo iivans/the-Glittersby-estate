@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Glittersby Estate | Estate Portal 1923</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Courier+Prime&display=swap');
+
+        :root {
+            --gold: #d4af37;
+            --gold-light: #f3e5ab;
+            --gold-dark: #8a6e1c;
+            --dark-bg: #0a0a0a;
+            --card-bg: #161616;
+            --text: #e0e0e0;
+            --accent: #8b0000;
+            --paper: #f4e4c1;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--dark-bg);
+            color: var(--text);
+            font-family: 'Playfair Display', Georgia, serif;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        /* === FILM GRAIN & VINTAGE OVERLAY === */
+        #film-grain {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0.08;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            animation: grain 0.5s steps(10) infinite;
+        }
+        @keyframes grain {
+            0%, 100% { transform: translate(0,0); }
+            10% { transform: translate(-5%,-5%); }
+            20% { transform: translate(5%,5%); }
+            30% { transform: translate(-5%,5%); }
+            40% { transform: translate(5%,-5%); }
+            50% { transform: translate(-5%,0%); }
+            60% { transform: translate(5%,0%); }
+            70% { transform: translate(0%,5%); }
+            80% { transform: translate(0%,-5%); }
+            90% { transform: translate(5%,5%); }
+        }
+
+        #vignette {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%);
+        }
+
+        #flicker {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 9996;
+            background: rgba(255,255,255,0.02);
+            animation: flicker 4s infinite;
+        }
+        @keyframes flicker {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.03; }
+            52% { opacity: 0; }
+            54% { opacity: 0.05; }
+            56% { opacity: 0; }
+        }
+
+        /* === LOADING SCREEN === */
+        #loading-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1.5s ease;
+        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
+
+        .diamond-spinner {
+            width: 70px; height: 70px;
+            border: 2px solid var(--gold-dark);
+            transform: rotate(45deg);
+            position: relative;
+            margin: 2rem auto 2.5rem;
+            animation: spin 4s linear infinite;
+        }
+        .diamond-spinner::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 28px; height: 28px;
+            transform: translate(-50%, -50%);
+            border: 2px solid var(--gold);
+        }
+        .diamond-spinner::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 8px; height: 8px;
+            transform: translate(-50%, -50%);
+            background: var(--gold);
+        }
+        @keyframes spin { to { transform: rotate(405deg); } }
+
+        .loading-era {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.1rem;
+            letter-spacing: 6px;
+            margin-bottom: 1rem;
+        }
+        .loading-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            font-size: 2rem;
+            margin: 0 0 0.6rem 0;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+        .loading-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--gold-light);
+            opacity: 0.8;
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+        .loading-text {
+            font-family: 'Courier Prime', monospace;
+            color: #0f0;
+            font-size: 1rem;
+            min-height: 1.5rem;
+            letter-spacing: 2px;
+        }
+        .loading-cursor { animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* === PASSWORD SCREEN === */
+        #password-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #0f0f0f 0%, #1a1205 50%, #0f0f0f 100%);
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease;
+        }
+        #password-screen.hidden { opacity: 0; pointer-events: none; }
+
+        .password-ticket {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a1f0a 100%);
+            border: 1px solid var(--gold);
+            border-radius: 2px;
+            padding: 2.5rem 3rem;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 0 40px rgba(212,175,55,0.15), inset 0 0 60px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .password-ticket::before, .password-ticket::after {
+            content: '✦';
+            position: absolute;
+            top: 14px;
+            color: var(--gold);
+            font-size: 0.85rem;
+        }
+        .password-ticket::before { left: 14px; }
+        .password-ticket::after { right: 14px; }
+
+        .ticket-title {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 1.6rem;
+            letter-spacing: 4px;
+            line-height: 1.4;
+            margin-bottom: 0.4rem;
+        }
+        .ticket-admit {
+            font-family: 'Courier Prime', monospace;
+            color: var(--gold-light);
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            margin-bottom: 1.2rem;
+        }
+        .ticket-sub {
+            color: var(--gold-light);
+            font-style: italic;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+        .ticket-line {
+            border: none;
+            border-top: 1px dashed var(--gold-dark);
+            margin: 1rem 0;
+        }
+        .ticket-detail {
+            font-family: 'Courier Prime', monospace;
+            color: var(--gold-light);
+            font-size: 0.8rem;
+            margin: 0.35rem 0;
+            letter-spacing: 1px;
+        }
+        .ticket-stamp-wrap {
+            position: relative;
+        }
+        .ticket-stamp {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(-9deg);
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            padding: 3px 12px;
+            opacity: 0.65;
+            pointer-events: none;
+        }
+        .ticket-warning {
+            color: var(--accent);
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            margin-top: 0.5rem;
+        }
+        .proceed-btn {
+            margin-top: 1.8rem;
+            padding: 0.8rem 2rem;
+            font-size: 0.85rem;
+        }
+
+        /* === MUSIC PLAYER === */
+        #music-player {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 5000;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid var(--gold-dark);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #music-player:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212,175,55,0.2);
+        }
+        #music-player span {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+        }
+        .music-note { font-size: 1.2rem; animation: pulse 2s infinite; cursor: pointer; }
+        #music-status { cursor: pointer; }
+        @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        #volumeControl {
+            width: 60px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+
+        /* === MAIN SITE === */
+        header {
+            padding: 2rem 1rem 1rem;
+            border-bottom: 3px double var(--gold);
+            background: linear-gradient(180deg, #1f1a0a 0%, var(--dark-bg) 100%);
+            position: relative;
+        }
+        header::after {
+            content: '✦ ✦ ✦';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-bg);
+            padding: 0 1rem;
+            color: var(--gold);
+            font-size: 0.8rem;
+            letter-spacing: 8px;
+        }
+
+        h1 {
+            color: var(--gold);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-size: 2rem;
+            margin: 0 0 0.3rem 0;
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+            font-family: 'Cinzel', serif;
+        }
+        .subtitle {
+            color: var(--gold-light);
+            font-style: italic;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+        .estate-clock {
+            font-family: 'Courier Prime', monospace;
+            color: var(--gold-dark);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        nav {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        nav button {
+            background: transparent;
+            border: 1px solid var(--gold-dark);
+            color: var(--gold);
+            padding: 0.5rem 0.8rem;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        nav button::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212,175,55,0.2), transparent);
+            transition: left 0.5s;
+        }
+        nav button:hover::before { left: 100%; }
+        nav button:hover, nav button.active {
+            background-color: var(--gold);
+            color: var(--dark-bg);
+            font-weight: bold;
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(212,175,55,0.3);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        section {
+            display: none;
+            animation: fadeIn 0.6s ease;
+        }
+        section.active-section {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--gold-dark);
+            padding: 1.5rem;
+            border-radius: 2px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+            text-align: left;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            opacity: 0.5;
+        }
+        .card:hover {
+            border-color: var(--gold);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(212,175,55,0.1);
+        }
+        .card h3 {
+            color: var(--gold);
+            margin-top: 0;
+            border-bottom: 1px solid var(--gold-dark);
+            padding-bottom: 0.5rem;
+            font-family: 'Cinzel', serif;
+            font-size: 1.1rem;
+        }
+
+        .actor-tag {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: var(--dark-bg);
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            font-family: 'Courier Prime', monospace;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            border-bottom: 1px dashed #444;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .menu-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .menu-item h4 {
+            color: var(--gold-light);
+            margin: 0 0 0.25rem 0;
+            font-family: 'Cinzel', serif;
+        }
+
+        .interactive-box {
+            background: linear-gradient(135deg, #1a1a1a 0%, #141414 100%);
+            border: 1px solid var(--gold-dark);
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            border-radius: 4px;
+            text-align: left;
+            position: relative;
+        }
+        .interactive-box::after {
+            content: 'CONFIDENTIAL';
+            position: absolute;
+            top: 10px; right: 10px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.6rem;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            padding: 2px 6px;
+            opacity: 0.6;
+            transform: rotate(-5deg);
+        }
+        .interactive-box h3 {
+            color: var(--gold);
+            margin-top: 0;
+            font-family: 'Cinzel', serif;
+        }
+
+        input[type="text"], input[type="password"] {
+            background: #000;
+            border: 1px solid var(--gold-dark);
+            color: #fff;
+            padding: 0.6rem;
+            font-family: 'Courier Prime', monospace;
+            width: 70%;
+            max-width: 300px;
+            margin-right: 0.5rem;
+            margin-top: 0.5rem;
+            transition: all 0.3s;
+        }
+        input[type="text"]:focus, input[type="password"]:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 10px rgba(212,175,55,0.2);
+        }
+
+        button.action-btn {
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            color: #000;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        button.action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212,175,55,0.3);
+        }
+        button.action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-message {
+            margin-top: 0.75rem;
+            font-weight: bold;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        .cipher-text {
+            font-family: 'Courier Prime', monospace;
+            background: #000;
+            color: #0f0;
+            padding: 1rem;
+            letter-spacing: 3px;
+            font-size: 1.1rem;
+            border: 1px solid #333;
+            word-break: break-all;
+            text-shadow: 0 0 5px rgba(0,255,0,0.3);
+        }
+
+        .hint-text {
+            color: var(--gold-light);
+            font-style: italic;
+            margin-top: 0.5rem;
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        .mcq-options label {
+            display: block;
+            margin: 0.5rem 0;
+            cursor: pointer;
+            padding: 0.5rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+        .mcq-options label:hover {
+            background: rgba(212,175,55,0.05);
+            border-color: var(--gold-dark);
+        }
+        .mcq-options input[type="radio"] {
+            margin-right: 0.5rem;
+            accent-color: var(--gold);
+        }
+
+        .grid-table {
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-family: 'Courier Prime', monospace;
+        }
+        .grid-table td, .grid-table th {
+            border: 1px solid var(--gold-dark);
+            padding: 10px 14px;
+            text-align: center;
+        }
+        .grid-table th {
+            background: rgba(212,175,55,0.1);
+            color: var(--gold);
+        }
+
+        .cards-display {
+            font-size: 2rem;
+            letter-spacing: 8px;
+            margin: 1rem 0;
+            min-height: 50px;
+            font-family: 'Courier Prime', monospace;
+        }
+
+        /* === LOBBY === */
+        .lobby-doors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        .lobby-door {
+            background: linear-gradient(180deg, #1a1205 0%, #0f0f0f 100%);
+            border: 2px solid var(--gold-dark);
+            border-radius: 80px 80px 4px 4px;
+            padding: 2rem 1rem;
+            cursor: pointer;
+            transition: all 0.4s;
+            position: relative;
+            text-align: center;
+        }
+        .lobby-door::before {
+            content: '';
+            position: absolute;
+            top: 8px; left: 50%;
+            transform: translateX(-50%);
+            width: 20px; height: 20px;
+            border: 2px solid var(--gold-dark);
+            border-radius: 50%;
+            background: #000;
+        }
+        .lobby-door:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 30px rgba(212,175,55,0.2);
+            transform: translateY(-5px);
+        }
+        .lobby-door .door-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        .lobby-door .door-label {
+            font-family: 'Cinzel', serif;
+            color: var(--gold);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+        }
+
+        /* === NEWSPAPER === */
+        .newspaper {
+            background: var(--paper);
+            color: #1a1a1a;
+            padding: 2rem;
+            border: 1px solid #c4a35a;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            font-family: 'Playfair Display', serif;
+            text-align: left;
+            position: relative;
+        }
+        .newspaper::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paper)' opacity='0.1'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        .newspaper h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            border-bottom: 3px double #1a1a1a;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #1a1a1a;
+        }
+        .newspaper .paper-date {
+            text-align: center;
+            font-style: italic;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #444;
+        }
+        .newspaper h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.2rem;
+            border-bottom: 1px solid #1a1a1a;
+            padding-bottom: 0.3rem;
+            margin-top: 1.5rem;
+        }
+        .newspaper p {
+            line-height: 1.7;
+            font-size: 0.95rem;
+        }
+        .newspaper .easter-egg {
+            cursor: pointer;
+            border-bottom: 1px dashed #888;
+            transition: all 0.2s;
+        }
+        .newspaper .easter-egg:hover {
+            background: rgba(212,175,55,0.15);
+        }
+
+        /* === RADIO === */
+        .radio-box {
+            background: linear-gradient(135deg, #2a1f0a 0%, #1a1205 100%);
+            border: 3px solid #5a4a2a;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        .radio-dial {
+            width: 120px; height: 120px;
+            border: 4px solid var(--gold-dark);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            background: radial-gradient(circle, #3a2a1a 30%, #1a1205 70%);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .radio-dial:hover {
+            border-color: var(--gold);
+            box-shadow: 0 0 20px rgba(212,175,55,0.2);
+        }
+        .radio-dial::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 4px; height: 50%;
+            background: var(--gold);
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%) rotate(45deg);
+        }
+        .radio-display {
+            font-family: 'Courier Prime', monospace;
+            background: #0a1a0a;
+            color: #0f0;
+            padding: 1rem;
+            border: 2px inset #333;
+            min-height: 80px;
+            text-align: left;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            text-shadow: 0 0 3px rgba(0,255,0,0.3);
+        }
+
+        /* === CASINO === */
+        .casino-table {
+            background: linear-gradient(135deg, #0a3a0a 0%, #052005 100%);
+            border: 3px solid var(--gold-dark);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 1rem;
+            position: relative;
+        }
+        .casino-table::before {
+            content: '';
+            position: absolute;
+            top: 10px; left: 10px; right: 10px; bottom: 10px;
+            border: 1px dashed var(--gold-dark);
+            border-radius: 15px;
+            pointer-events: none;
+        }
+        .bankroll {
+            font-family: 'Courier Prime', monospace;
+            color: var(--gold);
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(212,175,55,0.3);
+        }
+        .playing-card {
+            display: inline-block;
+            width: 60px; height: 84px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 2px;
+            position: relative;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            color: #000;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+            vertical-align: top;
+        }
+        .playing-card.red { color: #c00; }
+        .playing-card .card-corner-tl {
+            position: absolute;
+            top: 2px; left: 4px;
+            font-size: 0.7rem;
+            line-height: 1;
+        }
+        .playing-card .card-corner-br {
+            position: absolute;
+            bottom: 2px; right: 4px;
+            font-size: 0.7rem;
+            line-height: 1;
+            transform: rotate(180deg);
+        }
+        .playing-card .card-center {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.4rem;
+        }
+        .playing-card.back {
+            background: linear-gradient(135deg, #8b0000 0%, #500 100%);
+            border: 1px solid #600;
+        }
+        .playing-card.back::after {
+            content: '✦';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+
+        /* === SLOT MACHINE === */
+        .slot-machine {
+            background: linear-gradient(180deg, #3a1a1a 0%, #1a0a0a 100%);
+            border: 3px solid var(--gold);
+            border-radius: 8px;
+            padding: 2rem;
+            max-width: 400px;
+            margin: 1rem auto;
+            text-align: center;
+        }
+        .slot-window {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 1rem 0;
+            background: #000;
+            border: 2px inset #333;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        .slot-reel {
+            width: 70px; height: 70px;
+            background: #fff;
+            border: 2px solid var(--gold-dark);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            transition: all 0.1s;
+        }
+
+        .payout-table {
+            background: rgba(0,0,0,0.5);
+            border: 1px solid var(--gold-dark);
+            padding: 0.8rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.8rem;
+            color: var(--gold-light);
+            text-align: left;
+        }
+        .payout-table h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            text-align: center;
+        }
+
+        /* === DICE (CRAPS) === */
+        .dice-box {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .die {
+            width: 60px; height: 60px;
+            background: #fff;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #000;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.4);
+            transition: transform 0.3s;
+        }
+        .die.rolling { animation: shake 0.5s ease-in-out; }
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+
+        /* === LEADERBOARD === */
+        .leaderboard {
+            background: linear-gradient(135deg, #1a1205 0%, #0f0f0f 100%);
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .leaderboard h3 {
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            margin-top: 0;
+        }
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--gold-dark);
+            font-family: 'Courier Prime', monospace;
+        }
+        .leaderboard-row:last-child { border-bottom: none; }
+        .leaderboard-rank { color: var(--gold); width: 30px; }
+        .leaderboard-name { flex: 1; text-align: left; padding-left: 1rem; }
+        .leaderboard-amount { color: var(--gold-light); }
+
+        /* === CALENDAR === */
+        .calendar {
+            background: linear-gradient(135deg, #1a1205 0%, #0f0f0f 100%);
+            border: 1px solid var(--gold-dark);
+            padding: 1.5rem;
+            border-radius: 4px;
+        }
+        .calendar-event {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px dashed #333;
+        }
+        .calendar-event:last-child { border-bottom: none; }
+        .calendar-time {
+            font-family: 'Courier Prime', monospace;
+            color: var(--gold);
+            width: 80px;
+            font-size: 0.9rem;
+        }
+        .calendar-desc {
+            flex: 1;
+            text-align: left;
+            padding-left: 1rem;
+        }
+        .calendar-event.mystery .calendar-desc {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        /* === EASTER EGG POPUP === */
+        .easter-popup {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, #1a1205 0%, #0f0f0f 100%);
+            border: 1px solid var(--gold);
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            z-index: 9999;
+            font-family: 'Courier Prime', monospace;
+            font-size: 0.9rem;
+            color: var(--gold-light);
+            transition: transform 0.5s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            max-width: 400px;
+            text-align: center;
+            pointer-events: none;
+        }
+        .easter-popup.show { transform: translateX(-50%) translateY(0); }
+
+        /* === LIGHTS OUT MODE === */
+        body.lights-out {
+            --gold: #8b0000;
+            --gold-light: #ff4444;
+            --gold-dark: #500;
+            --dark-bg: #020202;
+            --card-bg: #0a0a0a;
+        }
+        body.lights-out #flicker {
+            background: rgba(139,0,0,0.05);
+            animation: flickerRed 2s infinite;
+        }
+        @keyframes flickerRed {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.08; }
+            52% { opacity: 0; }
+            54% { opacity: 0.12; }
+            56% { opacity: 0; }
+        }
+
+        .lights-out-toggle {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            z-index: 5000;
+            background: rgba(10,10,10,0.9);
+            border: 1px solid var(--gold-dark);
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .lights-out-toggle:hover {
+            border-color: var(--gold);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.4rem; letter-spacing: 3px; }
+            .password-ticket { padding: 2rem 1.5rem; }
+            .lobby-doors { grid-template-columns: repeat(2, 1fr); }
+            .cards-display { font-size: 1.5rem; letter-spacing: 4px; }
+            .playing-card { width: 45px; height: 63px; }
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+
+    <!-- VINTAGE OVERLAYS -->
+    <div id="film-grain"></div>
+    <div id="vignette"></div>
+    <div id="flicker"></div>
+
+    <!-- MUSIC PLAYER -->
+    <div id="music-player" onclick="toggleMusic()">
+        <span class="music-note">♫</span>
+        <span id="music-status">JAZZ OFF</span>
+        <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.25" onclick="event.stopPropagation()" oninput="setVolume(this.value)" title="Volume">
+    </div>
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="jazz.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen">
+        <div class="loading-era">PROHIBITION ERA — 1923</div>
+        <div class="loading-title">The Glittersby Estate</div>
+        <div class="loading-subtitle">Somewhere in New York...</div>
+        <div class="diamond-spinner"></div>
+        <div class="loading-text" id="loading-text"></div>
+    </div>
+
+    <!-- PASSWORD SCREEN -->
+    <div id="password-screen">
+        <div class="password-ticket">
+            <div class="ticket-title">GLITTERSBY<br>ESTATE</div>
+            <div class="ticket-admit">ADMIT ONE</div>
+            <hr class="ticket-line">
+            <div class="ticket-stamp-wrap">
+                <div class="ticket-stamp">CONFIDENTIAL</div>
+                <div class="ticket-detail">PRIVATE EVENING AFFAIR</div>
+                <div class="ticket-detail">SUNDAY, SEPTEMBER 6, 1923</div>
+                <div class="ticket-detail">DRESS: 1920s ATTIRE</div>
+            </div>
+            <hr class="ticket-line">
+            <div style="margin: 1rem 0;">
+                <input type="password" id="sitePassword" placeholder="Enter Secret Password..." style="width: 100%; text-align: center; margin-bottom: 0.5rem;">
+                <div id="passwordError" style="color: var(--accent); font-family: 'Courier Prime', monospace; font-size: 0.8rem; min-height: 1.2rem;"></div>
+            </div>
+            <div class="ticket-warning">NO REFUNDS • NO POLICE</div>
+        </div>
+        <button class="action-btn proceed-btn" onclick="enterEstate()">Proceed to the Manor</button>
+    </div>
+
+    <!-- EASTER EGG POPUP -->
+    <div class="easter-popup" id="easterPopup"></div>
+
+    <!-- LIGHTS OUT TOGGLE -->
+    <button class="lights-out-toggle" onclick="toggleLightsOut()">🌙 LIGHTS OUT</button>
+
+    <!-- MAIN SITE -->
+    <header>
+        <div class="estate-clock" id="estateClock">GLITTERSBY ESTATE — NEW YORK — SUNDAY, SEPTEMBER 6, 1923 — 11:47 PM</div>
+        <h1>THE GLITTERSBY ESTATE</h1>
+        <div class="subtitle">"Every mansion has its secrets."</div>
+        <nav>
+            <button class="nav-btn active" onclick="showTab('lobby', this)">🏛️ Lobby</button>
+            <button class="nav-btn" onclick="showTab('characters', this)">🎭 Characters</button>
+            <button class="nav-btn" onclick="showTab('menu', this)">🍸 Menu</button>
+            <button class="nav-btn" onclick="showTab('ciphers', this)">🔐 Cyphers</button>
+            <button class="nav-btn" onclick="showTab('trivia', this)">🧠 Trivia</button>
+            <button class="nav-btn" onclick="showTab('casino', this)">🃏 Casino</button>
+            <button class="nav-btn" onclick="showTab('newspaper', this)">📰 Newspaper</button>
+            <button class="nav-btn" onclick="showTab('radio', this)">📻 Radio</button>
+            <button class="nav-btn" onclick="showTab('calendar', this)">📅 Calendar</button>
+        </nav>
+    </header>
+
+    <div class="container">
+
+        <!-- LOBBY -->
+        <section id="lobby" class="active-section">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">Main Lobby</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Choose your destination, old sport.</p>
+            <div class="lobby-doors">
+                <div class="lobby-door" onclick="showTab('characters', document.querySelectorAll('.nav-btn')[1])">
+                    <span class="door-icon">🎭</span>
+                    <span class="door-label">CHARACTERS</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('menu', document.querySelectorAll('.nav-btn')[2])">
+                    <span class="door-icon">🍸</span>
+                    <span class="door-label">MENU</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('ciphers', document.querySelectorAll('.nav-btn')[3])">
+                    <span class="door-icon">🔐</span>
+                    <span class="door-label">CYPHERS</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('trivia', document.querySelectorAll('.nav-btn')[4])">
+                    <span class="door-icon">🧠</span>
+                    <span class="door-label">TRIVIA</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('casino', document.querySelectorAll('.nav-btn')[5])">
+                    <span class="door-icon">🃏</span>
+                    <span class="door-label">CASINO</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('newspaper', document.querySelectorAll('.nav-btn')[6])">
+                    <span class="door-icon">📰</span>
+                    <span class="door-label">NEWSPAPER</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('radio', document.querySelectorAll('.nav-btn')[7])">
+                    <span class="door-icon">📻</span>
+                    <span class="door-label">RADIO</span>
+                </div>
+                <div class="lobby-door" onclick="showTab('calendar', document.querySelectorAll('.nav-btn')[8])">
+                    <span class="door-icon">📅</span>
+                    <span class="door-label">CALENDAR</span>
+                </div>
+            </div>
+
+            <div class="interactive-box" style="margin-top: 2rem; text-align: center;">
+                <h3>🎷 Tonight's Atmosphere</h3>
+                <p style="text-align: center; color: var(--gold-light);">
+                    The jazz is smoky, the gin is cold, and the secrets are plenty.<br>
+                    Welcome to the most exclusive estate in New York.
+                </p>
+                <div style="margin-top: 1rem; font-size: 1.5rem; cursor: pointer;" onclick="showEaster('🎷 You found a saxophone behind the bar. It smells of tobacco and regret.')">🎷</div>
+            </div>
+        </section>
+
+        <!-- CHARACTERS -->
+        <section id="characters">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">The Official Guest List</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Meet tonight's distinguished guests.</p>
+            <div class="grid">
+                <div class="card">
+                    <span class="actor-tag">Played by: Isaac</span>
+                    <h3>Jay Glittersby</h3>
+                    <p><strong>Role:</strong> Host & Millionaire</p>
+                    <p>Rich mansion owner; mysterious past, sleek and secretive.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Destini</span>
+                    <h3>Jinn Slinger</h3>
+                    <p><strong>Role:</strong> Estate Bartender</p>
+                    <p>Has heard it all, insincerely sympathetic, keeps the drinks flowing.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Brad</span>
+                    <h3>Shay D. Sort</h3>
+                    <p><strong>Role:</strong> Gangster</p>
+                    <p>Gangster type; trying hard to appear respectable high-society royalty.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Leann</span>
+                    <h3>Goldie Diggs</h3>
+                    <p><strong>Role:</strong> Gangster's Moll</p>
+                    <p>On the lookout for a rich man; sharp-witted and loves luxury.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Juan</span>
+                    <h3>Mimi Crye</h3>
+                    <p><strong>Role:</strong> Silent Movie Star</p>
+                    <p>Glamorous silent movie star; overly dramatic, never steals the spotlight.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Franki</span>
+                    <h3>Jigg O. Low</h3>
+                    <p><strong>Role:</strong> Movie Star Escort</p>
+                    <p>Foppish movie star's escort; in love with herself and smooth on her feet.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Kayley</span>
+                    <h3>Suzy Cue</h3>
+                    <p><strong>Role:</strong> Dancing Flapper</p>
+                    <p>Charleston contest winner, dancing maniac, independent and quick.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Nolan</span>
+                    <h3>Blake Boddum</h3>
+                    <p><strong>Role:</strong> Flapper's Date</p>
+                    <p>Charleston contest winner, dancing maniac, calculating every move.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Jaide</span>
+                    <h3>Avery Keyes</h3>
+                    <p><strong>Role:</strong> Piano Player</p>
+                    <p>Jazz lover, flirty with guests; meticulous observer of everything in the manor.</p>
+                </div>
+                <div class="card">
+                    <span class="actor-tag">Played by: Zayana</span>
+                    <h3>Imotta Bounds</h3>
+                    <p><strong>Role:</strong> Tennis Champion & Socialite</p>
+                    <p>Always looking for a game; high-society socialite thriving on fashion and sport.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MENU -->
+        <section id="menu">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">The Manor Bar</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Tonight's Specials — Handcrafted by Jinn Slinger, Estate Bartender</p>
+            <div class="grid">
+                <div class="card">
+                    <h3>🍽️ Appetizer & Main</h3>
+                    <div class="menu-item">
+                        <h4>Charcuterie Board</h4>
+                        <p>Artisanal cured meats, gourmet cheeses, crackers, fresh fruit, and manor preserves.</p>
+                    </div>
+                    <div class="menu-item">
+                        <h4>Shepherd's Pie</h4>
+                        <p>Hearty minced meat topped with golden mashed potatoes, served alongside a crisp garden salad.</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>🍰 Dessert</h3>
+                    <div class="menu-item">
+                        <h4>Chocolate Covered Strawberries</h4>
+                        <p>Fresh strawberries hand-dipped in rich dark chocolate.</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 2rem;">🍸 Cocktail & Mocktail Cards</h3>
+            <div class="grid">
+                <div class="card" style="cursor: pointer;" onclick="this.querySelector('.recipe').style.display=this.querySelector('.recipe').style.display==='block'?'none':'block'">
+                    <h3>🐝 Bee's Knees</h3>
+                    <p><em>"The bee's knees of all cocktails."</em></p>
+                    <div class="recipe" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--gold-dark);">
+                        <p><strong>Ingredients:</strong></p>
+                        <p>• 2 oz Gin (or zero-proof spirit)</p>
+                        <p>• 3/4 oz Fresh Lemon Juice</p>
+                        <p>• 1/2 oz Honey Syrup</p>
+                        <p style="margin-top: 0.5rem; color: var(--gold-light);"><em>Shake with ice, strain into a coupe glass.</em></p>
+                    </div>
+                </div>
+                <div class="card" style="cursor: pointer;" onclick="this.querySelector('.recipe').style.display=this.querySelector('.recipe').style.display==='block'?'none':'block'">
+                    <h3>🫐 Blackberry Gin Fizz</h3>
+                    <p><em>"A fizzy delight with a berry twist."</em></p>
+                    <div class="recipe" style="display:none; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--gold-dark);">
+                        <p><strong>Ingredients:</strong></p>
+                        <p>• 2 oz Gin (or zero-proof spirit)</p>
+                        <p>• 4-5 Fresh Blackberries (muddled)</p>
+                        <p>• 3/4 oz Lemon Juice</p>
+                        <p>• Sparkling Soda</p>
+                        <p style="margin-top: 0.5rem; color: var(--gold-light);"><em>Muddle berries, add gin & lemon, top with soda.</em></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CYPHERS -->
+        <section id="ciphers">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">Intercepted Bootlegger Cyphers</h2>
+            <p style="color: var(--gold-light); font-style: italic;">U.S. Department of Justice — Prohibition Enforcement Division</p>
+
+            <div class="interactive-box">
+                <h3>📁 FILE #1923-047 — Cypher #1: Shift Cipher</h3>
+                <div class="cipher-text">WKH NLOOHU LV ZDWFKLQJ</div>
+                <div id="h1" class="hint-text">💡 Hint: Shift every letter backward by 3 in the alphabet (D = A).</div>
+                <input type="text" id="c1Input" placeholder="Enter solution...">
+                <button class="action-btn" onclick="checkC1()">Decrypt</button>
+                <div id="c1Result" class="result-message"></div>
+            </div>
+
+            <div class="interactive-box">
+                <h3>📁 FILE #1923-048 — Cypher #2: Reverse Telegraph</h3>
+                <div class="cipher-text">YENOM EHT EKAT DNA NUR</div>
+                <div id="h2" class="hint-text">💡 Hint: Read the phrase completely backward!</div>
+                <input type="text" id="c2Input" placeholder="Enter solution...">
+                <button class="action-btn" onclick="checkC2()">Decrypt</button>
+                <div id="c2Result" class="result-message"></div>
+            </div>
+
+            <div class="interactive-box">
+                <h3>📁 FILE #1923-049 — Cypher #3: Anagram</h3>
+                <div class="cipher-text">ON EON IS FEAS</div>
+                <div id="h3" class="hint-text">💡 Hint: Rearrange into a 4-word phrase: 'N_ _N_ IS S_F_'</div>
+                <input type="text" id="c3Input" placeholder="Enter solution...">
+                <button class="action-btn" onclick="checkC3()">Decrypt</button>
+                <div id="c3Result" class="result-message"></div>
+            </div>
+
+            <div class="interactive-box">
+                <h3>📁 FILE #1923-050 — Cypher #4: Coordinate Grid Plot</h3>
+                <p>Locate the letters using coordinates (Row, Column): <strong>(1,3) (4,1) (5,1) (2,1)</strong></p>
+                <table class="grid-table">
+                    <tr><th></th><th>1</th><th>2</th><th>3</th></tr>
+                    <tr><th>1</th><td>A</td><td>B</td><td>C</td></tr>
+                    <tr><th>2</th><td>E</td><td>F</td><td>G</td></tr>
+                    <tr><th>3</th><td>H</td><td>I</td><td>K</td></tr>
+                    <tr><th>4</th><td>L</td><td>M</td><td>N</td></tr>
+                    <tr><th>5</th><td>U</td><td>V</td><td>W</td></tr>
+                </table>
+                <div id="h4" class="hint-text">💡 Hint: Match each (Row, Column) pair to the table letters to spell a 4-letter word.</div>
+                <input type="text" id="c4Input" placeholder="4-letter word...">
+                <button class="action-btn" onclick="checkC4()">Decrypt</button>
+                <div id="c4Result" class="result-message"></div>
+            </div>
+
+            <div class="interactive-box">
+                <h3>📁 FILE #1923-051 — Cypher #5: Tap Code</h3>
+                <div class="cipher-text">.. ... / . . / ... ... / ... ...</div>
+                <div id="h5" class="hint-text">💡 Hint: Count the dots for (Row, Column) in a 5x5 grid. (2,3)=J, (1,1)=A, (3,3)=Z.</div>
+                <input type="text" id="c5Input" placeholder="4-letter word...">
+                <button class="action-btn" onclick="checkC5()">Decrypt</button>
+                <div id="c5Result" class="result-message"></div>
+            </div>
+        </section>
+
+        <!-- TRIVIA -->
+        <section id="trivia">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">1920s Estate Trivia</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Test your knowledge of the Roaring Twenties.</p>
+
+            <h3 style="color: var(--gold-light); text-align: left; font-family: 'Cinzel', serif;">Part 1: Type-In Answers</h3>
+
+            <div class="interactive-box">
+                <p><strong>1. What was the popular slang term for high-quality bootleg liquor?</strong></p>
+                <input type="text" id="t1Input" placeholder="Type answer...">
+                <button class="action-btn" onclick="checkT1()">Submit</button>
+                <div id="t1Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>2. Which Constitutional Amendment established Prohibition in 1919?</strong></p>
+                <input type="text" id="t2Input" placeholder="Type answer (e.g. 18th)...">
+                <button class="action-btn" onclick="checkT2()">Submit</button>
+                <div id="t2Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>3. What secret password phrase was famously whispered to enter speakeasies?</strong></p>
+                <input type="text" id="t3Input" placeholder="___ sent me">
+                <button class="action-btn" onclick="checkT3()">Submit</button>
+                <div id="t3Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>4. What iconic 1920s dance featured fast footwork and kicked-out heels?</strong></p>
+                <input type="text" id="t4Input" placeholder="Type answer...">
+                <button class="action-btn" onclick="checkT4()">Submit</button>
+                <div id="t4Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>5. What term described modern 1920s women who wore short skirts and bobbed hair?</strong></p>
+                <input type="text" id="t5Input" placeholder="Type answer...">
+                <button class="action-btn" onclick="checkT5()">Submit</button>
+                <div id="t5Result" class="result-message"></div>
+            </div>
+
+            <h3 style="color: var(--gold-light); text-align: left; font-family: 'Cinzel', serif; margin-top: 2rem;">Part 2: Multiple Choice</h3>
+
+            <div class="interactive-box">
+                <p><strong>6. In what year did Prohibition officially end with the 21st Amendment?</strong></p>
+                <div class="mcq-options">
+                    <label><input type="radio" name="q6" value="1929"> A) 1929</label>
+                    <label><input type="radio" name="q6" value="1933"> B) 1933</label>
+                    <label><input type="radio" name="q6" value="1940"> C) 1940</label>
+                </div>
+                <button class="action-btn" onclick="checkQ6()">Submit</button>
+                <div id="q6Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>7. Which notorious crime boss operated out of Chicago during Prohibition?</strong></p>
+                <div class="mcq-options">
+                    <label><input type="radio" name="q7" value="Al Capone"> A) Al Capone</label>
+                    <label><input type="radio" name="q7" value="Lucky Luciano"> B) Lucky Luciano</label>
+                    <label><input type="radio" name="q7" value="Bugsy Siegel"> C) Bugsy Siegel</label>
+                </div>
+                <button class="action-btn" onclick="checkQ7()">Submit</button>
+                <div id="q7Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>8. What was homemade, illegally distilled alcohol often called?</strong></p>
+                <div class="mcq-options">
+                    <label><input type="radio" name="q8" value="Bathtub Gin"> A) Bathtub Gin</label>
+                    <label><input type="radio" name="q8" value="Barrel Cider"> B) Barrel Cider</label>
+                    <label><input type="radio" name="q8" value="Counter Tonic"> C) Counter Tonic</label>
+                </div>
+                <button class="action-btn" onclick="checkQ8()">Submit</button>
+                <div id="q8Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>9. Which author wrote 'The Great Gatsby', capturing 1920s high society?</strong></p>
+                <div class="mcq-options">
+                    <label><input type="radio" name="q9" value="Ernest Hemingway"> A) Ernest Hemingway</label>
+                    <label><input type="radio" name="q9" value="F. Scott Fitzgerald"> B) F. Scott Fitzgerald</label>
+                    <label><input type="radio" name="q9" value="John Steinbeck"> C) John Steinbeck</label>
+                </div>
+                <button class="action-btn" onclick="checkQ9()">Submit</button>
+                <div id="q9Result" class="result-message"></div>
+            </div>
+            <div class="interactive-box">
+                <p><strong>10. What was the secret police force unit tasked with enforcing Prohibition led by Eliot Ness?</strong></p>
+                <div class="mcq-options">
+                    <label><input type="radio" name="q10" value="The Untouchables"> A) The Untouchables</label>
+                    <label><input type="radio" name="q10" value="The Secret Six"> B) The Secret Six</label>
+                    <label><input type="radio" name="q10" value="The G-Men"> C) The G-Men</label>
+                </div>
+                <button class="action-btn" onclick="checkQ10()">Submit</button>
+                <div id="q10Result" class="result-message"></div>
+            </div>
+        </section>
+
+        <!-- CASINO -->
+        <section id="casino">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">The Glittersby Casino</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Try your luck — but remember, the house always wins.</p>
+
+            <div class="bankroll" id="bankrollDisplay">💰 BANKROLL: $1,000</div>
+
+            <div class="leaderboard" style="margin-bottom: 2rem;">
+                <h3>🏆 Tonight's Big Winners</h3>
+                <div id="leaderboardContent">
+                    <div class="leaderboard-row"><span class="leaderboard-rank">1.</span><span class="leaderboard-name">Jay</span><span class="leaderboard-amount">$2,450</span></div>
+                    <div class="leaderboard-row"><span class="leaderboard-rank">2.</span><span class="leaderboard-name">Goldie</span><span class="leaderboard-amount">$1,800</span></div>
+                    <div class="leaderboard-row"><span class="leaderboard-rank">3.</span><span class="leaderboard-name">Jigg</span><span class="leaderboard-amount">$1,250</span></div>
+                </div>
+            </div>
+
+            <!-- BLACKJACK -->
+            <div class="casino-table">
+                <h3 style="color: var(--gold); font-family: 'Cinzel', serif; text-align: center; margin-top: 0;">♠ ESTATE 21 ♠</h3>
+                <div style="text-align: center;">
+                    <p style="color: var(--gold-light); font-size: 0.9rem;">Dealer's Hand</p>
+                    <div id="dealerCards" class="cards-display"></div>
+                    <p style="font-family: 'Courier Prime', monospace;">Dealer Score: <span id="dealerScore" style="color: var(--gold);">?</span></p>
+
+                    <hr style="border: none; border-top: 1px dashed var(--gold-dark); margin: 1.5rem 0;">
+
+                    <p style="color: var(--gold-light); font-size: 0.9rem;">Your Hand</p>
+                    <div id="playerCards" class="cards-display"></div>
+                    <p style="font-family: 'Courier Prime', monospace;">Your Score: <span id="playerScore" style="color: var(--gold);">0</span></p>
+
+                    <div style="margin-top: 1rem;">
+                        <button id="hitBtn" class="action-btn" onclick="hit()">Hit</button>
+                        <button id="standBtn" class="action-btn" onclick="stand()">Stand</button>
+                        <button class="action-btn" onclick="resetGame()" style="background: linear-gradient(135deg, #444, #222); color: #fff;">New Game</button>
+                    </div>
+                    <div id="gameStatus" style="font-size: 1.1rem; margin-top: 1rem; font-family: 'Cinzel', serif;">Click "New Game" to start playing!</div>
+                </div>
+            </div>
+
+            <!-- CRAPS -->
+            <div class="casino-table" style="margin-top: 2rem;">
+                <h3 style="color: var(--gold); font-family: 'Cinzel', serif; text-align: center; margin-top: 0;">🎲 CRAPS 🎲</h3>
+                <p style="text-align: center; color: var(--gold-light); font-size: 0.9rem;">Roll the dice. 7 or 11 wins. 2, 3, or 12 loses.</p>
+                <div class="dice-box">
+                    <div class="die" id="die1">🎲</div>
+                    <div class="die" id="die2">🎲</div>
+                </div>
+                <div style="text-align: center;">
+                    <p style="font-family: 'Courier Prime', monospace; font-size: 1.2rem;">Total: <span id="diceTotal" style="color: var(--gold);">—</span></p>
+                    <p id="crapsResult" style="font-family: 'Cinzel', serif; margin-top: 0.5rem;"></p>
+                    <button class="action-btn" onclick="rollCraps()" style="margin-top: 1rem;">Roll Dice ($50)</button>
+                </div>
+            </div>
+
+            <!-- SLOT MACHINE -->
+            <div class="slot-machine" style="margin-top: 2rem;">
+                <h3 style="color: var(--gold); font-family: 'Cinzel', serif; margin-top: 0;">🎰 ONE-ARMED BANDIT 🎰</h3>
+                <div class="payout-table">
+                    <h4>📜 Slot Rules & Payouts</h4>
+                    <div>• <strong>Cost per Spin:</strong> $25</div>
+                    <div>• <strong>3 Matching Symbols:</strong> Jackpot ($500)</div>
+                    <div>• <strong>2 Matching Symbols:</strong> Win ($50)</div>
+                    <div>• <strong>No Matching Symbols:</strong> Loss ($0)</div>
+                </div>
+                <div class="slot-window">
+                    <div class="slot-reel" id="slot1">🍒</div>
+                    <div class="slot-reel" id="slot2">🍋</div>
+                    <div class="slot-reel" id="slot3">🔔</div>
+                </div>
+                <p id="slotResult" style="font-family: 'Cinzel', serif; margin: 0.5rem 0;"></p>
+                <button class="action-btn" onclick="spinSlot()">Pull Lever ($25)</button>
+            </div>
+        </section>
+
+        <!-- NEWSPAPER -->
+        <section id="newspaper">
+            <div class="newspaper">
+                <h2>THE NEW YORK EVENING REGISTER</h2>
+                <div class="paper-date">Sunday, September 6, 1923 — Price 3¢ — New York City — All the news that's fit to print</div>
+
+                <h3>🎩 SOCIETY — GLITTERSBY ESTATE TO HOST SOCIETY'S MOST TALKED-ABOUT EVENING</h3>
+                <p>The doors of the magnificent <span class="easter-egg" onclick="showEaster('🎩 A gentleman\'s hat was found in the coatroom. It smells of expensive cologne and secrets.')">Glittersby Estate</span> will open tonight for what promises to be one of the season's most exclusive gatherings. Society's finest names are expected to attend the private affair, hosted by the mysterious and notoriously wealthy Mr. Glittersby.</p>
+                <p>Guests have been instructed to arrive in their finest 1920s attire. Dinner, dancing, live jazz, and an evening of games are expected. Rumors of a surprise announcement have circulated throughout Manhattan, though the estate's representatives have refused to confirm anything. One thing is certain: tonight, everyone will be watching everyone else.</p>
+
+                <h3>🎩 SOCIETY NOTES — WHO'S WHO AT THE ESTATE</h3>
+                <p>Several notable figures are expected to attend tonight's gathering, among them business magnates, performers, athletes, socialites, and other prominent members of New York society. A source close to the estate described the guest list as <span class="easter-egg" onclick="showEaster('🎩 The source, when pressed further, simply lit a cigarette and changed the subject.')">"a rather dangerous collection of people in one very large house."</span> The source declined to elaborate.</p>
+
+                <h3>🚔 POLICE BLOTTER — MYSTERIOUS INCIDENT ON FIFTH AVENUE</h3>
+                <p>Police responded late Saturday evening to reports of a disturbance near Fifth Avenue. Witnesses reported hearing raised voices before a <span class="easter-egg" onclick="showEaster('🚔 A single cufflink was recovered from the street where the motorcar was seen. It bears no initials.')">motorcar was seen leaving the area</span> at considerable speed. No arrests have been announced. Police declined to comment on whether the incident was connected to tonight's Glittersby gathering.</p>
+
+                <h3>🥃 PROHIBITION — BUSINESS IS BOOMING</h3>
+                <p>Despite the continued efforts of federal authorities, New York's underground liquor trade shows no signs of slowing. Bootleggers continue to find creative ways to move spirits throughout the city. The latest concoction, dubbed the <span class="easter-egg" onclick="showEaster('🍸 A cocktail napkin with lipstick stains and a phone number: BUtterfield 8.')">"Bee's Knees,"</span> has become the drink of choice among New York's elite. One police officer, speaking anonymously, remarked: "If you know where to look, you'll find a bottle." Authorities deny that any illegal liquor will be served at tonight's estate gathering. Nobody believes them.</p>
+
+                <h3>🎾 SPORTS — A BUSY WEEKEND IN NEW YORK</h3>
+                <p>Baseball fans have filled the city's ballparks this weekend, while boxing and tennis continue to attract New York's sporting elite. Tennis champion Imotta Bounds has reportedly been challenging nearly everyone she meets to a match; friends say she "doesn't know how to refuse a competition." <span class="easter-egg" onclick="showEaster('🎾 A tennis ball was found in the garden. It has teeth marks.')">A stray tennis ball</span> was discovered in the manor garden this afternoon.</p>
+
+                <h3>🎬 ENTERTAINMENT — ROXY THEATRE PACKED</h3>
+                <p>New York's theaters remain crowded this weekend as audiences continue to flock toward the latest silent-film attractions, and the Roxy Theatre is expected to draw another large crowd tonight. Meanwhile, rumors continue to circulate regarding a certain film star attending a private gathering uptown. <span class="easter-egg" onclick="showEaster('🎬 A movie ticket stub from the Roxy Theatre was found. The show: The Great Gatsby.')">A ticket stub</span> from the Roxy Theatre was found near the estate entrance. Piano player Avery Keyes will perform live jazz throughout the evening. "I see everything in this estate," Keyes remarked with a wink.</p>
+
+                <h3>☁️ WEATHER — CLEAR SKIES, PERFECT FOR AN EVENING OUT</h3>
+                <p>Today: clear skies with mild temperatures. Tonight: cool and clear — ideal conditions for New Yorkers attending tonight's private parties and society gatherings. <span class="easter-egg" onclick="showEaster('☁️ A weather vane on the roof points southwest. Strange, since the wind is coming from the east.')">The weather vane</span> on the manor roof appears to be stuck.</p>
+
+                <h3>❓ SOCIETY'S QUESTION OF THE DAY</h3>
+                <p><em>What secret will be revealed tonight at the Glittersby Estate? Whatever happens, our society correspondent will be watching. — The New York Evening Register</em></p>
+            </div>
+        </section>
+
+        <!-- RADIO -->
+        <section id="radio">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">📻 WBX-1923 — Live from New York</h2>
+            <p style="color: var(--gold-light); font-style: italic;">Click the dial to tune in to tonight's broadcast.</p>
+
+            <div class="radio-box">
+                <div class="radio-dial" onclick="playRadio()"></div>
+                <p style="color: var(--gold); font-family: 'Cinzel', serif; letter-spacing: 3px;">WBX — NEW YORK</p>
+                <div class="radio-display" id="radioDisplay">
+                    [STATIC] ... Adjust the dial to begin broadcast ... [STATIC]
+                </div>
+            </div>
+
+            <div class="interactive-box" style="margin-top: 2rem;">
+                <h3>🎵 Tonight's Soundtrack</h3>
+                <p>The jazz age is in full swing. From smoky piano lounges to packed dance halls, the sound of the 1920s is everywhere.</p>
+                <p style="margin-top: 0.5rem;"><strong>Featured Artists:</strong></p>
+                <p>• Louis Armstrong — West End Blues</p>
+                <p>• Duke Ellington — East St. Louis Toodle-Oo</p>
+                <p>• Bessie Smith — St. Louis Blues</p>
+                <p>• Fats Waller — Ain't Misbehavin'</p>
+                <p style="margin-top: 1rem; color: var(--gold-light);"><em>"Jazz is the only thing that makes life worth living in this town." — Anonymous, 1923</em></p>
+            </div>
+        </section>
+
+        <!-- CALENDAR -->
+        <section id="calendar">
+            <h2 style="color: var(--gold); font-family: 'Cinzel', serif;">📅 Tonight's Society Calendar</h2>
+            <p style="color: var(--gold-light); font-style: italic;">The evening's events at the Glittersby Estate.</p>
+
+            <div class="calendar">
+                <div class="calendar-event">
+                    <div class="calendar-time">5:00 PM</div>
+                    <div class="calendar-desc">🎩 <strong>The Estate Opens.</strong> Guests begin arriving whenever they please. Dress: 1920s attire. Refreshments somewhere about.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Sometime After</div>
+                    <div class="calendar-desc">🍽️ <strong>Dinner, More or Less.</strong> Food will appear in the dining hall at some point. No one seems entirely sure when.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Later On</div>
+                    <div class="calendar-desc">🎷 <strong>Jazz in the Lounge.</strong> Avery Keyes will be at the piano eventually. Mingling and dancing encouraged throughout.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Evening</div>
+                    <div class="calendar-desc">💃 <strong>The Dance Floor Opens.</strong> A Charleston competition may or may not begin in the ballroom. There is allegedly a prize.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Unclear</div>
+                    <div class="calendar-desc">🔐 <strong>By Invitation Only.</strong> A few guests seem to be handling private matters somewhere in the estate. Some rooms are simply off limits.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Whenever</div>
+                    <div class="calendar-desc">🃏 <strong>The Tables Open.</strong> Cards, dice, and wagers begin in the casino at some point in the evening. Fortune favors the bold.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Still Later</div>
+                    <div class="calendar-desc">🥃 <strong>The Night Continues.</strong> Guests drift back to the lounge for drinks, conversation, and more music.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Before Midnight</div>
+                    <div class="calendar-desc">📜 <strong>An Announcement, Supposedly.</strong> Mr. Glittersby is said to be addressing something important before the night is through.</div>
+                </div>
+                <div class="calendar-event mystery">
+                    <div class="calendar-time">Nearly Midnight</div>
+                    <div class="calendar-desc">🕰️ <strong>The Estate Falls Quiet.</strong> Nothing is officially scheduled. No one has explained why.</div>
+                </div>
+                <div class="calendar-event">
+                    <div class="calendar-time">Midnight, Ish</div>
+                    <div class="calendar-desc">🚗 <strong>Carriages.</strong> Guests are expected to depart around midnight — assuming, of course, that everyone is still here.</div>
+                </div>
+            </div>
+            <p style="color: var(--gold-light); font-style: italic; font-size: 0.85rem; margin-top: 1rem;">The management of the Glittersby Estate is not responsible for lost valuables, broken friendships, damaged reputations, or unexplained disappearances. Enjoy your evening.</p>
+
+            <div class="interactive-box" style="margin-top: 2rem;">
+                <h3>🎟️ Digital Admission Ticket</h3>
+                <div style="text-align: center; font-family: 'Courier Prime', monospace; border: 2px dashed var(--gold-dark); padding: 1.5rem; margin-top: 1rem;">
+                    <p style="color: var(--gold); font-size: 1.2rem; margin: 0;">╔════════════════════════════╗</p>
+                    <p style="color: var(--gold); margin: 0.3rem 0;">GLITTERSBY ESTATE</p>
+                    <p style="color: var(--gold-light); margin: 0.3rem 0;">ADMIT ONE</p>
+                    <p style="color: var(--gold); margin: 0.3rem 0;">PRIVATE ESTATE</p>
+                    <p style="color: var(--gold-light); margin: 0.3rem 0; font-size: 0.8rem;">Sunday, September 6, 1923</p>
+                    <p style="color: var(--gold-light); margin: 0.3rem 0; font-size: 0.8rem;">DRESS: 1920s</p>
+                    <p style="color: var(--gold); margin: 0.3rem 0; font-size: 0.8rem;">NO REFUNDS • NO POLICE</p>
+                    <p style="color: var(--gold); font-size: 1.2rem; margin: 0;">╚════════════════════════════╝</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // === LOADING SCREEN ===
+        const loadingTexts = [
+            "CONNECTING TO PRIVATE ESTATE...",
+            "VERIFYING GUEST LIST...",
+            "UNLOCKING THE MANOR GATES...",
+            "WELCOME, OLD SPORT."
+        ];
+        let loadIdx = 0;
+        function typeLoading() {
+            const el = document.getElementById('loading-text');
+            if (loadIdx < loadingTexts.length) {
+                el.innerHTML = loadingTexts[loadIdx] + '<span class="loading-cursor">_</span>';
+                loadIdx++;
+                setTimeout(typeLoading, 1200);
+            } else {
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                }, 800);
+            }
+        }
+        window.addEventListener('load', () => {
+            setTimeout(typeLoading, 500);
+        });
+
+        // === ENTER THE ESTATE (PASSWORD VALIDATION & AUDIO) ===
+        function enterEstate() {
+            const passwordInput = document.getElementById('sitePassword').value;
+            const errorElement = document.getElementById('passwordError');
+
+            if (passwordInput === "1923") {
+                document.getElementById('password-screen').classList.add('hidden');
+                if (!musicOn) {
+                    toggleMusic();
+                }
+            } else {
+                errorElement.innerText = "ACCESS DENIED: Invalid Password";
+            }
+        }
+
+        // === MUSIC ===
+        let musicOn = false;
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        backgroundMusic.volume = 0.25;
+
+        function toggleMusic() {
+            const status = document.getElementById('music-status');
+            if (backgroundMusic.paused) {
+                backgroundMusic.play()
+                    .then(() => {
+                        musicOn = true;
+                        status.innerText = 'JAZZ ON';
+                    })
+                    .catch(err => {
+                        console.error('Music failed to play:', err);
+                        status.innerText = 'JAZZ OFF';
+                        showEaster('🎵 Add music/jazz.mp3 to the repo to enable the soundtrack.');
+                    });
+            } else {
+                backgroundMusic.pause();
+                musicOn = false;
+                status.innerText = 'JAZZ OFF';
+            }
+        }
+
+        function setVolume(val) {
+            backgroundMusic.volume = val;
+        }
+
+        // === TABS ===
+        function showTab(tabId, btn) {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(sec => sec.classList.remove('active-section'));
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active-section');
+            if (btn) btn.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // === EASTER EGGS ===
+        function showEaster(msg) {
+            const popup = document.getElementById('easterPopup');
+            popup.innerText = msg;
+            popup.classList.add('show');
+            setTimeout(() => popup.classList.remove('show'), 4000);
+        }
+
+        // === LIGHTS OUT ===
+        let lightsOut = false;
+        function toggleLightsOut() {
+            lightsOut = !lightsOut;
+            document.body.classList.toggle('lights-out', lightsOut);
+            const btn = document.querySelector('.lights-out-toggle');
+            btn.innerText = lightsOut ? '☀️ LIGHTS ON' : '🌙 LIGHTS OUT';
+            if (lightsOut) {
+                showEaster('🌙 The police have arrived. Nobody leaves the estate.');
+            }
+        }
+
+        // === CYPHERS ===
+        function checkC1() {
+            const val = document.getElementById('c1Input').value.trim().toUpperCase();
+            const res = document.getElementById('c1Result');
+            if (val === "THE KILLER IS WATCHING") {
+                res.style.color = "#0f0";
+                res.innerHTML = "🔓 DECRYPTED!";
+            } else {
+                res.style.color = "#f00";
+                res.innerHTML = "❌ Incorrect.";
+                document.getElementById('h1').style.display = 'block';
+            }
+        }
+        function checkC2() {
+            const val = document.getElementById('c2Input').value.trim().toUpperCase();
+            const res = document.getElementById('c2Result');
+            if (val === "RUN AND TAKE THE MONEY") {
+                res.style.color = "#0f0";
+                res.innerHTML = "🔓 DECRYPTED!";
+            } else {
+                res.style.color = "#f00";
+                res.innerHTML = "❌ Incorrect.";
+                document.getElementById('h2').style.display = 'block';
+            }
+        }
+        function checkC3() {
+            const val = document.getElementById('c3Input').value.trim().toUpperCase();
+            const res = document.getElementById('c3Result');
+            if (val === "NO ONE IS SAFE") {
+                res.style.color = "#0f0";
+                res.innerHTML = "🔓 DECRYPTED!";
+            } else {
+                res.style.color = "#f00";
+                res.innerHTML = "❌ Incorrect.";
+                document.getElementById('h3').style.display = 'block';
+            }
+        }
+        function checkC4() {
+            const val = document.getElementById('c4Input').value.trim().toUpperCase();
+            const res = document.getElementById('c4Result');
+            if (val === "CLUE") {
+                res.style.color = "#0f0";
+                res.innerHTML = "🔓 DECRYPTED!";
+            } else {
+                res.style.color = "#f00";
+                res.innerHTML = "❌ Incorrect.";
+                document.getElementById('h4').style.display = 'block';
+            }
+        }
+        function checkC5() {
+            const val = document.getElementById('c5Input').value.trim().toUpperCase();
+            const res = document.getElementById('c5Result');
+            if (val === "JAZZ") {
+                res.style.color = "#0f0";
+                res.innerHTML = "🔓 DECRYPTED!";
+            } else {
+                res.style.color = "#f00";
+                res.innerHTML = "❌ Incorrect.";
+                document.getElementById('h5').style.display = 'block';
+            }
+        }
+
+        // === TRIVIA ===
+        function checkT1() {
+            const val = document.getElementById('t1Input').value.trim().toLowerCase();
+            const res = document.getElementById('t1Result');
+            if (val.includes("mccoy") || val.includes("hooch") || val.includes("bootleg")) {
+                res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!";
+            } else { res.style.color = "#f00"; res.innerHTML = "❌ Try again!"; }
+        }
+        function checkT2() {
+            const val = document.getElementById('t2Input').value.trim().toLowerCase();
+            const res = document.getElementById('t2Result');
+            if (val.includes("18") || val.includes("eighteenth")) {
+                res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!";
+            } else { res.style.color = "#f00"; res.innerHTML = "❌ Try again!"; }
+        }
+        function checkT3() {
+            const val = document.getElementById('t3Input').value.trim().toLowerCase();
+            const res = document.getElementById('t3Result');
+            if (val.includes("joe") || val.includes("friend")) {
+                res.style.color = "#0f0"; res.innerHTML = "🎩 Correct! ('Joe sent me')";
+            } else { res.style.color = "#f00"; res.innerHTML = "❌ Try again!"; }
+        }
+        function checkT4() {
+            const val = document.getElementById('t4Input').value.trim().toLowerCase();
+            const res = document.getElementById('t4Result');
+            if (val.includes("charleston")) {
+                res.style.color = "#0f0"; res.innerHTML = "🎩 Correct! The Charleston!";
+            } else { res.style.color = "#f00"; res.innerHTML = "❌ Try again!"; }
+        }
+        function checkT5() {
+            const val = document.getElementById('t5Input').value.trim().toLowerCase();
+            const res = document.getElementById('t5Result');
+            if (val.includes("flapper")) {
+                res.style.color = "#0f0"; res.innerHTML = "🎩 Correct! Flappers!";
+            } else { res.style.color = "#f00"; res.innerHTML = "❌ Try again!"; }
+        }
+        function checkQ6() {
+            const sel = document.querySelector('input[name="q6"]:checked');
+            const res = document.getElementById('q6Result');
+            if (sel && sel.value === "1933") { res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!"; }
+            else { res.style.color = "#f00"; res.innerHTML = "❌ Incorrect (1933)."; }
+        }
+        function checkQ7() {
+            const sel = document.querySelector('input[name="q7"]:checked');
+            const res = document.getElementById('q7Result');
+            if (sel && sel.value === "Al Capone") { res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!"; }
+            else { res.style.color = "#f00"; res.innerHTML = "❌ Incorrect (Al Capone)."; }
+        }
+        function checkQ8() {
+            const sel = document.querySelector('input[name="q8"]:checked');
+            const res = document.getElementById('q8Result');
+            if (sel && sel.value === "Bathtub Gin") { res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!"; }
+            else { res.style.color = "#f00"; res.innerHTML = "❌ Incorrect (Bathtub Gin)."; }
+        }
+        function checkQ9() {
+            const sel = document.querySelector('input[name="q9"]:checked');
+            const res = document.getElementById('q9Result');
+            if (sel && sel.value === "F. Scott Fitzgerald") { res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!"; }
+            else { res.style.color = "#f00"; res.innerHTML = "❌ Incorrect (F. Scott Fitzgerald)."; }
+        }
+        function checkQ10() {
+            const sel = document.querySelector('input[name="q10"]:checked');
+            const res = document.getElementById('q10Result');
+            if (sel && sel.value === "The Untouchables") { res.style.color = "#0f0"; res.innerHTML = "🎩 Correct!"; }
+            else { res.style.color = "#f00"; res.innerHTML = "❌ Incorrect (The Untouchables)."; }
+        }
+
+        // === BANKROLL & LEADERBOARD ===
+        let bankroll = parseInt(localStorage.getItem('estate_bankroll')) || 1000;
+        function updateBankroll() {
+            document.getElementById('bankrollDisplay').innerText = '💰 BANKROLL: $' + bankroll.toLocaleString();
+            localStorage.setItem('estate_bankroll', bankroll);
+        }
+        updateBankroll();
+
+        // === BLACKJACK ===
+        let deck = [];
+        let playerHand = [];
+        let dealerHand = [];
+        let gameOver = false;
+
+        function buildDeck() {
+            const suits = ['♠', '♥', '♦', '♣'];
+            const values = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            deck = [];
+            for (let s of suits) {
+                for (let v of values) {
+                    deck.push({ suit: s, value: v });
+                }
+            }
+            deck.sort(() => Math.random() - 0.5);
+        }
+        function getCardValue(card) {
+            if (['J','Q','K'].includes(card.value)) return 10;
+            if (card.value === 'A') return 11;
+            return parseInt(card.value);
+        }
+        function calcScore(hand) {
+            let score = 0;
+            let aces = 0;
+            for (let c of hand) {
+                score += getCardValue(c);
+                if (c.value === 'A') aces++;
+            }
+            while (score > 21 && aces > 0) {
+                score -= 10;
+                aces--;
+            }
+            return score;
+        }
+        function renderCard(card) {
+            const isRed = card.suit === '♥' || card.suit === '♦';
+            return `<div class="playing-card ${isRed ? 'red' : ''}">
+                <div class="card-corner-tl">${card.value}<br>${card.suit}</div>
+                <div class="card-center">${card.suit}</div>
+                <div class="card-corner-br">${card.value}<br>${card.suit}</div>
+            </div>`;
+        }
+        function renderBack() {
+            return '<div class="playing-card back"></div>';
+        }
+        function resetGame() {
+            buildDeck();
+            playerHand = [deck.pop(), deck.pop()];
+            dealerHand = [deck.pop(), deck.pop()];
+            gameOver = false;
+            document.getElementById('hitBtn').disabled = false;
+            document.getElementById('standBtn').disabled = false;
+            document.getElementById('gameStatus').innerHTML = "Game in progress...";
+            document.getElementById('gameStatus').style.color = "#fff";
+            updateDisplay(false);
+        }
+        function updateDisplay(showDealer) {
+            document.getElementById('playerCards').innerHTML = playerHand.map(renderCard).join('');
+            document.getElementById('playerScore').innerHTML = calcScore(playerHand);
+            if (showDealer) {
+                document.getElementById('dealerCards').innerHTML = dealerHand.map(renderCard).join('');
+                document.getElementById('dealerScore').innerHTML = calcScore(dealerHand);
+            } else {
+                document.getElementById('dealerCards').innerHTML = renderCard(dealerHand[0]) + renderBack();
+                document.getElementById('dealerScore').innerHTML = getCardValue(dealerHand[0]);
+            }
+        }
+        function hit() {
+            if (gameOver) return;
+            playerHand.push(deck.pop());
+            let score = calcScore(playerHand);
+            if (score > 21) {
+                gameOver = true;
+                bankroll -= 50;
+                updateBankroll();
+                updateDisplay(true);
+                document.getElementById('gameStatus').innerHTML = "💥 BUST! House wins! (-$50)";
+                document.getElementById('gameStatus').style.color = "#f00";
+                document.getElementById('hitBtn').disabled = true;
+                document.getElementById('standBtn').disabled = true;
+            } else {
+                updateDisplay(false);
+            }
+        }
+        function stand() {
+            if (gameOver) return;
+            gameOver = true;
+            while (calcScore(dealerHand) < 17) {
+                dealerHand.push(deck.pop());
+            }
+            updateDisplay(true);
+            let pScore = calcScore(playerHand);
+            let dScore = calcScore(dealerHand);
+            const status = document.getElementById('gameStatus');
+            if (dScore > 21 || pScore > dScore) {
+                status.innerHTML = "🎉 YOU WIN! (+$100)";
+                status.style.color = "#0f0";
+                bankroll += 100;
+            } else if (pScore < dScore) {
+                status.innerHTML = "🍷 House wins! (-$50)";
+                status.style.color = "#f00";
+                bankroll -= 50;
+            } else {
+                status.innerHTML = "🤝 Push! It's a tie!";
+                status.style.color = "var(--gold)";
+            }
+            updateBankroll();
+            document.getElementById('hitBtn').disabled = true;
+            document.getElementById('standBtn').disabled = true;
+        }
+
+        // === CRAPS ===
+        function rollCraps() {
+            if (bankroll < 50) {
+                showEaster('💸 You are broke! Reset your bankroll by clearing browser data.');
+                return;
+            }
+            const d1 = document.getElementById('die1');
+            const d2 = document.getElementById('die2');
+            d1.classList.add('rolling');
+            d2.classList.add('rolling');
+            document.getElementById('crapsResult').innerHTML = '';
+            document.getElementById('diceTotal').innerHTML = '...';
+
+            setTimeout(() => {
+                const roll1 = Math.floor(Math.random() * 6) + 1;
+                const roll2 = Math.floor(Math.random() * 6) + 1;
+                const total = roll1 + roll2;
+                const diceFaces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+                d1.innerHTML = diceFaces[roll1 - 1];
+                d2.innerHTML = diceFaces[roll2 - 1];
+                d1.classList.remove('rolling');
+                d2.classList.remove('rolling');
+                document.getElementById('diceTotal').innerHTML = total;
+
+                const res = document.getElementById('crapsResult');
+                if (total === 7 || total === 11) {
+                    res.style.color = '#0f0';
+                    res.innerHTML = '🎉 NATURAL! You win $100!';
+                    bankroll += 100;
+                } else if (total === 2 || total === 3 || total === 12) {
+                    res.style.color = '#f00';
+                    res.innerHTML = '💥 CRAPS! You lose $50.';
+                    bankroll -= 50;
+                } else {
+                    res.style.color = 'var(--gold)';
+                    res.innerHTML = 'Point is ' + total + '. Roll again!';
+                }
+                updateBankroll();
+            }, 600);
+        }
+
+        // === SLOT MACHINE ===
+        const slotSymbols = ['🍒','🍋','🔔','💎','7️⃣','🍀','⭐'];
+        function spinSlot() {
+            if (bankroll < 25) {
+                showEaster('💸 You are broke! Reset your bankroll by clearing browser data.');
+                return;
+            }
+            bankroll -= 25;
+            updateBankroll();
+            const s1 = document.getElementById('slot1');
+            const s2 = document.getElementById('slot2');
+            const s3 = document.getElementById('slot3');
+            const res = document.getElementById('slotResult');
+            res.innerHTML = 'Spinning...';
+
+            let spins = 0;
+            const interval = setInterval(() => {
+                s1.innerHTML = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                s2.innerHTML = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                s3.innerHTML = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                spins++;
+                if (spins > 15) {
+                    clearInterval(interval);
+                    const f1 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                    const f2 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                    const f3 = slotSymbols[Math.floor(Math.random() * slotSymbols.length)];
+                    s1.innerHTML = f1;
+                    s2.innerHTML = f2;
+                    s3.innerHTML = f3;
+
+                    if (f1 === f2 && f2 === f3) {
+                        res.style.color = '#0f0';
+                        res.innerHTML = '🎰 JACKPOT! All three match! You win $500!';
+                        bankroll += 500;
+                    } else if (f1 === f2 || f2 === f3 || f1 === f3) {
+                        res.style.color = 'var(--gold)';
+                        res.innerHTML = '✨ Two match! You win $50!';
+                        bankroll += 50;
+                    } else {
+                        res.style.color = '#f00';
+                        res.innerHTML = '💔 No match. Better luck next time!';
+                    }
+                    updateBankroll();
+                }
+            }, 100);
+        }
+
+        // === RADIO ===
+        const radioBroadcasts = [
+            "[STATIC] ... WBX NEWS, 10:15 PM ... Police confirm a shipment of Canadian whiskey was intercepted near the waterfront earlier this evening. Sources say the shipment never reached its intended buyer ... [STATIC]",
+            "[STATIC] ... Authorities are investigating a disturbance reported near Fifth Avenue late last night. Witnesses describe raised voices, followed by a motorcar leaving the scene at considerable speed. No arrests have been made ... [STATIC]",
+            "[STATIC] ... Good evening, New York. Tonight's society calendar is positively packed. The Glittersby Estate is hosting what insiders are calling the party of the decade. All the right people, all the wrong intentions ... [STATIC]",
+            "[STATIC] ... A reminder to our listeners: if any federal agents happen to be asking, you were home all evening ... [STATIC]",
+            "[STATIC] ... The Charleston craze continues to sweep the nation. Dance instructors report they cannot keep up with demand. Meanwhile, the jazz age shows no signs of slowing down ... [STATIC]",
+            "[STATIC] ... Weather report: clear skies, mild temperatures, and a high chance of scandal. Perfect conditions for a night out in Manhattan ... [STATIC]",
+            "[STATIC] ... Breaking: silent film star Mimi Crye was seen entering a certain private estate through the servant's entrance this evening. One does wonder what she is trying to hide ... [STATIC]"
+        ];
+        let radioIdx = 0;
+        function playRadio() {
+            const display = document.getElementById('radioDisplay');
+            display.innerHTML = '[TUNING] ... ';
+            setTimeout(() => {
+                const msg = radioBroadcasts[radioIdx];
+                radioIdx = (radioIdx + 1) % radioBroadcasts.length;
+                let i = 0;
+                display.innerHTML = '';
+                const typeInterval = setInterval(() => {
+                    display.innerHTML += msg.charAt(i);
+                    i++;
+                    if (i >= msg.length) clearInterval(typeInterval);
+                }, 30);
+            }, 800);
+        }
+
+        // === ESTATE CLOCK ===
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+            document.getElementById('estateClock').innerHTML = `GLITTERSBY ESTATE — NEW YORK — SUNDAY, SEPTEMBER 6, 1923 — ${timeStr}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // Init blackjack display
+        resetGame();
+    </script>
+</body>
+</html>
